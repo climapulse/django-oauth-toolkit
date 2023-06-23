@@ -322,6 +322,9 @@ class RPInitiatedLogoutView(OIDCLogoutOnlyMixin, FormView):
                 post_logout_redirect_uri=post_logout_redirect_uri,
             )
         except OIDCError as error:
+            if isinstance(error, InvalidIDTokenError):
+                logout(self.request)
+                return OAuth2ResponseRedirect(post_logout_redirect_uri, add_params_to_uri(post_logout_redirect_uri, [("state", state)]), ["http", "https", "climapulseapp"])
             return self.error_response(error)
 
         if not prompt:
